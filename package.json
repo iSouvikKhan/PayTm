@@ -1,0 +1,17 @@
+{
+  "name": "paytm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install-dependencies": "npm i && concurrently \"cd backend && npm i\" \"cd frontend && npm i\"",
+    "start": "concurrently \"cd backend && node index.js\" \"cd frontend && npm run dev\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

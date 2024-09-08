@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 
 
 export const Users = () => {
-    // Replace with backend call
     const [users, setUsers] = useState([]);
     const [filter, setFilter] = useState("");
 
@@ -26,7 +25,7 @@ export const Users = () => {
             }} type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
         </div>
         <div>
-            {users.map(user => <User user={user} />)}
+            {users.map(user => <User key={user._id} user={user} />)}
         </div>
     </>
 }

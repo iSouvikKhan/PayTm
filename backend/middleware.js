@@ -15,7 +15,7 @@ const authMiddleware = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        if(decoded.userId) {
+        if (decoded.userId) {
             req.userId = decoded.userId;
             next();
         } else {
@@ -24,7 +24,7 @@ const authMiddleware = (req, res, next) => {
             });
         }
 
-        
+
     } catch (err) {
         return res.status(403).json({
             message: "Middleware catch block"
