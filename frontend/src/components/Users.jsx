@@ -16,7 +16,7 @@ export const Users = () => {
     }, [filter])
 
     return <>
-        <div className="font-bold mt-6 text-lg">
+        <div className="font-semibold mt-6 text-lg">
             Users
         </div>
         <div className="my-2">
