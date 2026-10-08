@@ -1,4 +1,4 @@
-# PayTm Clone - Money Transfer Application
+# PayTm - Money Transfer Application
 
 A full-stack money transfer application inspired by Paytm. Users can sign up, sign in, search for other users and send them money from a simulated wallet balance. The backend is a Node.js/Express REST API backed by MongoDB, and the frontend is a React app built with Vite and Tailwind CSS.
 
