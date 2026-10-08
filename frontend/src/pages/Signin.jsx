@@ -1,49 +1,78 @@
-import { BottomWarning } from "../components/BottomWarning"
-import { Button } from "../components/Button"
-import { Heading } from "../components/Heading"
-import { InputBox } from "../components/InputBox"
-import { SubHeading } from "../components/SubHeading"
-import { useEffect, useState } from "react";
-import { useNavigate } from"react-router-dom";
-import axios from "axios";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { api, fieldErrors } from "../api/client";
+import { useAuth } from "../auth/AuthContext";
+import { AuthLayout } from "../components/AuthLayout";
+import { Alert, Button, TextField } from "../components/ui";
 
-export const Signin = () => {
-
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+export function Signin() {
+  const { startSession } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [form, setForm] = useState({ username: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if(localStorage.getItem("token")){
-      navigate("/dashboard")
+  const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const next = {};
+    if (!form.username.trim()) next.username = "Enter your email";
+    if (!form.password) next.password = "Enter your password";
+    setErrors(next);
+    setError(null);
+    if (Object.keys(next).length) return;
+
+    setSubmitting(true);
+    try {
+      const data = await api.signin({ username: form.username.trim(), password: form.password });
+      startSession(data);
+      navigate(location.state?.from?.pathname ?? "/dashboard", { replace: true });
+    } catch (err) {
+      setErrors(fieldErrors(err));
+      setError(err.message);
+      setSubmitting(false);
     }
-  }, [])
+  };
 
-  return <div className="bg-[#e0f5fd] h-screen flex justify-center">
-    <div className="flex flex-col justify-center">
-      <div className="rounded-lg bg-white w-[500px] text-center px-8 py-4 h-max space-y-4">
-        <Heading label={"Sign in"} />
-        <SubHeading label={"Enter your credentials to access your account"} />
-        <InputBox onChange={e => {
-          setUsername(e.target.value);
-        }} placeholder="xyz@gmail.com" label={"Email"} type={"email"}/>
-        <InputBox onChange={(e) => {
-          setPassword(e.target.value)
-        }} placeholder="******" label={"Password"} type={"password"}/>
-        <div className="pt-4">
-          <Button onClick={async () => {
-            if(username !== "" && password !== ""){
-              const response = await axios.post("http://localhost:3000/api/v1/user/signin", {
-                username,
-                password
-              });
-              localStorage.setItem("token", response.data.token)
-              navigate("/dashboard")
-            }
-          }} label={"Sign in"} />
-        </div>
-        <BottomWarning label={"Don't have an account?"} buttonText={"Sign up"} to={"/signup"} />
-      </div>
-    </div>
-  </div>
+  return (
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to your wallet"
+      footer={
+        <>
+          New here?{" "}
+          <Link to="/signup" className="font-semibold text-sky-700 hover:underline">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} noValidate className="space-y-4">
+        {error && <Alert>{error}</Alert>}
+        <TextField
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={form.username}
+          onChange={update("username")}
+          error={errors.username}
+        />
+        <TextField
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          value={form.password}
+          onChange={update("password")}
+          error={errors.password}
+        />
+        <Button type="submit" loading={submitting} className="w-full">
+          Sign in
+        </Button>
+      </form>
+    </AuthLayout>
+  );
 }
