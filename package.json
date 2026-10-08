@@ -1,17 +1,15 @@
 {
   "name": "paytm",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
+  "description": "PayTm clone: React + Express + MongoDB wallet with transactional transfers",
   "scripts": {
-    "install-dependencies": "npm i && concurrently \"cd backend && npm i\" \"cd frontend && npm i\"",
-    "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm run dev\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install-dependencies": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "start": "concurrently -n api,web -c blue,green \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "concurrently": "^9.0.0"
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }

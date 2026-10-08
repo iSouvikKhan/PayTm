@@ -1,0 +1,45 @@
+# Optional: run MongoDB (as a single-node replica set), the API and the UI in containers.
+#   docker compose up --build   ->  http://localhost:8080
+services:
+  mongo:
+    image: mongo:7
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # Initiates the replica set on first start, then reports healthy once it has a primary.
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok }",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/paytm?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET (at least 16 characters) before running docker compose}
+      CORS_ORIGINS: http://localhost:8080
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  mongo-data:
